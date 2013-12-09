@@ -1,0 +1,28 @@
+﻿@if (IsPost && Request.Form["upload-button"] != null)
+{
+    if (Request.Files.Count == 0)
+    {
+        <p style="color: red">请选择上传文件!</p>
+        return;
+    }
+    for (int i = 0; i < Request.Files.Count; i++)
+    {
+        if (Request.Files[i].ContentType != "audio/mp3")
+	    {
+            <p style="color: red">上传文件必须是音频mp3文件<span style="color: blue">(audio/mp3)</span>! 文件长度: @Request.Files[i].ContentLength 文件类型: @Request.Files[i].ContentType</p>
+	    }
+        else if (Request.Files[i].ContentLength < 1024000)
+        {
+            <p style="color: red">文件长度不能低于 1MB! 文件长度: @Request.Files[i].ContentLength 文件类型: @Request.Files[i].ContentType</p>
+        }
+        else
+        {
+            Request.Files[i].SaveAs(Server.MapPath("~/App_Data/UploadedFiles/" + Guid.NewGuid()));
+            <p>文件长度: @Request.Files[i].ContentLength 文件类型: @Request.Files[i].ContentType</p>
+        }
+    }
+}
+else
+{
+    <p>请求失败!</p>   
+}
