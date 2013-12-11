@@ -1,3 +1,106 @@
 body {
     font: 70% "Trebuchet MS", sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #e0e5ff;
+    min-height: 600px;
+    min-width: 800px;
+}
+
+/*主体框架*/
+#top-box {
+    position: fixed;
+    left: 0px;
+    top: 0px;
+    height: 50px;
+    width: 100%;
+    min-width: 800px;
+    background-color: #ffccdf;
+}
+
+#content-box {
+    margin-top: 100px;
+}
+
+#bottom-box {
+    position: fixed;
+    left: 0px;
+    bottom: 0px;
+    height: 50px;
+    width: 100%;
+    min-width: 800px;
+    background-color: #ffccdf;
+}
+
+/*上边栏内容*/
+#logo-box {
+    float: left;
+    width: 30%;
+    height: 50px;
+    background-color: gray;
+}
+
+    #logo-box > div {
+        width: 200px;
+        margin-left: 15%;
+        height: 100%;
+    }
+
+        #logo-box > div > h1 {
+            display: inline;
+            float: left;
+        }
+
+        #logo-box > div > img {
+            margin-left: 10px;
+            box-sizing:border-box;
+            height: 100%;
+            float: left;
+            border-radius: 10px;
+        }
+
+#search-box {
+    width: 50%;
+    height: 50px;
+    float: left;
+    background-color: red;
+}
+
+    #search-box > form {
+        box-sizing: border-box;
+        width: 300px;
+        height: 100%;
+        margin: auto;
+        padding: 10px;
+    }
+
+        #search-box > form > input {
+            font-size: 2em;
+            width: 70%;
+        }
+
+        #search-box > form > button {
+            margin-bottom: 9px;
+            width: 25%;
+            height: 100%;
+        }
+
+#user-box {
+    width: 20%;
+    height: 50px;
+    float: right;
+    background-color: green;
+}
+
+/*下边栏内容*/
+#player-box {
+}
+
+#player-control-box {
+}
+
+#player-content-box {
+}
+
+#player-list-button {
 }

@@ -11,72 +11,43 @@
     <script src="~/Scripts/jquery.form.js"></script>
     <link href="~/Content/themes/base/jquery-ui.css" rel="stylesheet" type="text/css" />
     <link href="~/Content/Site.css" rel="stylesheet" type="text/css" />
-    <style>
-        .upload-box {
-            padding: 5px;
-            border-radius: 5px;
-            background-color: white;
-            border: 2px dashed #808080;
-            width: 400px;
-        }
-
-        .ui-progressbar {
-            position: relative;
-        }
-
-        .upload-progress-label {
-            position: absolute;
-            left: 45%;
-            top: 4px;
-            font-weight: bold;
-            text-shadow: 1px 1px 0 #fff;
-        }
-
-        table th td {
-            border: 1px solid #808080;
-        }
-    </style>
     <script>
         $(function () {
-            $("#upload-progressbar").progressbar({ value: 0 });
-            $("#upload-select-button").button();
-            $("#upload-button").button({ disabled: true });
-            $("#upload-select-button input").change(function () {
-                if ($(this).val != "") {
-                    $("#upload-button").button({ disabled: false });
+            $("#search-bar button").button({
+                icons: {
+                    primary: "ui-icon-search"
                 }
             });
-
-            var options = {
-                success: function (responseText, statusText) {
-                    $("#upload-result").html(responseText);
-                    $("div.upload-progress-label").text("上传成功");
-                },
-                uploadProgress: function (event, position, total, percentComplete) {
-                    $("#upload-progressbar").progressbar({ value: percentComplete });
-                    $("div.upload-progress-label").text(percentComplete + "%");
-                }
-            };
-
-            $("#upload-file").ajaxForm(options);
         });
     </script>
 </head>
 <body>
-    <div class="upload-box">
-        <form id="upload-file" action="~/Upload" method="post">
-            <div id="upload-select-button" style="float: left; margin-right: 2%;">
-                选择文件
-               
-                <input style="position: absolute; left: 0; top: 0; height: 100%; width: 100%; opacity: 0;" name="upload-file-select" type="file" />
+    <div id="top-box">
+        <div id="logo-box">
+            <div>
+                <h1>OIJ-Music</h1>
+                <img src="~/Images/default_album.png"/>
             </div>
-            <input id="upload-button" style="float: left; margin-right: 10%;" name="upload-button" type="submit" value="上传" />
-            <div id="upload-progressbar" style="border-style: none; box-shadow: #e6dfdf 0px 0px 10px;">
-                <div class="upload-progress-label"></div>
-            </div>
-        </form>
-        <div id="upload-result"></div>
+        </div>
+        <div id="search-box">
+            <form id="search-bar" method="post">
+                <input class="ui-widget-header ui-state-default ui-corner-all" type="search" />
+                <button type="submit">搜索</button>
+            </form>
+        </div>
+        <div id="user-box">
+        </div>
     </div>
-    @RenderBody()
+    <div id="nav-box"></div>
+    <div id="content-box">
+        @RenderBody()
+    </div>
+    <div id="bottom-box">
+        <div id="player-box">
+            <div id="player-control-box"></div>
+            <div id="player-content-box"></div>
+            <div id="player-list-button"></div>
+        </div>
+    </div>
 </body>
 </html>
