@@ -7,17 +7,25 @@
     <meta charset="utf-8" />
     <title>@Page.Title - OIJ音乐</title>
     <script src="~/Scripts/jquery-2.0.3.js"></script>
-    <script src="~/Scripts/jquery-ui-1.10.3.js"></script>
     <script src="~/Scripts/jquery.form.js"></script>
-    <link href="~/Content/themes/base/jquery-ui.css" rel="stylesheet" type="text/css" />
+    @*<script src="~/Scripts/jquery-ui-1.10.3.custom.js"></script>*@
+    @*<link href="~/Content/themes/custom/jquery-ui-1.10.3.custom.css" rel="stylesheet" type="text/css" />*@
+    <script src="~/Scripts/jquery-ui-1.10.3.js"></script>
+    <link href="~/Content/themes/base/jquery-ui.css" rel="stylesheet" />
     <link href="~/Content/Site.css" rel="stylesheet" type="text/css" />
     <script>
         $(function () {
-            $("#search-bar button").button({
+            $("#search-bar-button-box button").button({
+                text: false,
                 icons: {
                     primary: "ui-icon-search"
                 }
-            });
+            }).next().button({
+                text: false,
+                icons: {
+                    primary: "ui-icon-triangle-1-s"
+                }
+            }).parent().buttonset();
         });
     </script>
 </head>
@@ -31,8 +39,13 @@
         </div>
         <div id="search-box">
             <form id="search-bar" method="post">
-                <input class="ui-widget-header ui-state-default ui-corner-all" type="search" />
-                <button type="submit">搜索</button>
+                <div id="search-bar-input-box">
+                    <input type="search" class="ui-button ui-widget ui-state-default ui-corner-all" />
+                </div>
+                <div id="search-bar-button-box">
+                    <button type="submit">搜索</button>
+                    <button type="button">选项</button>
+                </div>
             </form>
         </div>
         <div id="user-box">

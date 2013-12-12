@@ -9,13 +9,15 @@ body {
 
 /*主体框架*/
 #top-box {
+    padding-top: 10px;
+    padding-bottom: 10px;
     position: fixed;
-    left: 0px;
     top: 0px;
     height: 50px;
     width: 100%;
     min-width: 800px;
     background-color: #ffccdf;
+    box-shadow: 0px 0px 10px #808080;
 }
 
 #content-box {
@@ -23,27 +25,38 @@ body {
 }
 
 #bottom-box {
+    padding-top: 10px;
+    padding-bottom: 10px;
     position: fixed;
-    left: 0px;
     bottom: 0px;
-    height: 50px;
+    height: 0px;
     width: 100%;
     min-width: 800px;
     background-color: #ffccdf;
+    box-shadow: 0px 0px 10px #808080;
+    overflow: hidden;
+    transition: height 1s;
 }
+
+    #bottom-box:hover {
+        height: 50px;
+    }
 
 /*上边栏内容*/
 #logo-box {
     float: left;
-    width: 30%;
-    height: 50px;
-    background-color: gray;
+    width: 25%;
+    height: 100%;
+    /*background-color: #b6ff00;*/
 }
 
     #logo-box > div {
+        box-sizing: border-box;
+        box-shadow: 0px 0px 5px #808080 inset;
+        padding: 5px;
         width: 200px;
-        margin-left: 15%;
         height: 100%;
+        border-radius: 10px;
     }
 
         #logo-box > div > h1 {
@@ -52,44 +65,60 @@ body {
         }
 
         #logo-box > div > img {
-            margin-left: 10px;
-            box-sizing:border-box;
+            box-sizing: border-box;
             height: 100%;
-            float: left;
+            float: right;
             border-radius: 10px;
         }
 
 #search-box {
     width: 50%;
-    height: 50px;
+    height: 100%;
     float: left;
-    background-color: red;
+    /*background-color: red;*/
 }
 
     #search-box > form {
         box-sizing: border-box;
-        width: 300px;
+        padding: 5px;
+        width: 100%;
         height: 100%;
         margin: auto;
-        padding: 10px;
+        font-size: 1.5em;
+        position: relative;
     }
 
-        #search-box > form > input {
-            font-size: 2em;
-            width: 70%;
-        }
+#search-bar-input-box {
+    margin-right: 80px;
+}
 
-        #search-box > form > button {
-            margin-bottom: 9px;
-            width: 25%;
-            height: 100%;
+    #search-bar-input-box > input {
+        box-sizing: border-box;
+        text-align: left;
+        width: 100%;
+    }
+
+#search-bar-button-box {
+    position: absolute;
+    margin-right: 0px;
+    top: 5px;
+    right: 11px;
+}
+
+    #search-bar-button-box button {
+        box-sizing: border-box;
+        width: 50px;
+    }
+
+        #search-bar-button-box button + button {
+            width: 25px;
         }
 
 #user-box {
-    width: 20%;
-    height: 50px;
+    width: 25%;
+    height: 100%;
     float: right;
-    background-color: green;
+    /*background-color: green;*/
 }
 
 /*下边栏内容*/
