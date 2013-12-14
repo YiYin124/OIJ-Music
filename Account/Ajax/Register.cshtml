@@ -1,0 +1,27 @@
+﻿@{
+    Validation.RequireField("name", "昵称不能为空!");
+    Validation.RequireField("mail", "注册邮箱不能为空!");
+    Validation.RequireField("password", "密码不能为空!");
+    Validation.Add("name", Validator.Regex("[A-Za-z]", "昵称含有不符合规则的字符!"));
+    Validation.Add("mail", Validator.Regex("[A-Za-z]", "邮箱格式不正确!"));
+    Validation.Add("password", Validator.Regex("[A-Za-z]", "密码格式不正确!"));
+
+    if (IsPost && Request.Form["create_account_btn"] != null)
+    {
+        if (Validation.IsValid())
+        {
+            
+        }
+        else
+        {
+            Response.Write(
+                "{ nameHtmlValidationMessage : '" + Html.ValidationMessage("name") + 
+                "', mailHtmlValidationMessage : '" + Html.ValidationMessage("mail") +
+                "', passwordHtmlValidationMessage : '" + Html.ValidationMessage("password") + "' }");
+        }
+    }
+    else
+    {
+        throw new HttpException("非法访问");
+    }
+}

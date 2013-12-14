@@ -1,0 +1,58 @@
+﻿@{
+    Page.Title = "注册";
+    Layout = "~/_SiteLayout.cshtml";
+}
+
+<script src="~/Scripts/jquery-2.0.3.js"></script>
+<script src="~/Scripts/jquery.form.js"></script>
+<script src="~/Scripts/jquery-ui-1.10.3.js"></script>
+<link href="~/Content/themes/base/jquery-ui.css" rel="stylesheet" />
+
+<script>
+    $(function () {
+        $("#register-form").ajaxForm(function (responseText, statusText) {
+            var data = eval("(" + responseText + ")");
+            $("#register-validation-message-box").html(
+                data.nameHtmlValidationMessage +
+                "<br />" +
+                data.mailHtmlValidationMessage +
+                "<br />" +
+                data.passwordHtmlValidationMessage);
+        });
+    });
+</script>
+
+<div>
+    <div id="register-validation-message-box">
+
+    </div>
+    <form id="register-form" action="~/Account/Ajax/Register" method="post">
+        <label>
+            昵称:
+            <br />
+            <input name="name" type="text" />
+        </label>
+        <br />
+        <label>
+            邮箱:
+            <br />
+            <input name="mail" type="text" placeholder="example@mail.com" />
+        </label>
+        <br />
+        <label>
+            创建密码:
+            <br />
+            <input type="password" />
+        </label>
+        <br />
+        <label>
+            重新输入密码:
+            <br />
+            <input name="password" type="password" />
+        </label>
+        <br />
+        单击创建帐户即表示你同意 OIJ-Music 服务协议以及隐私和 Cookie 声明。
+        <br />
+        <button name="create_account_btn" type="submit">创建账户</button>
+    </form>
+</div>

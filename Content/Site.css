@@ -3,7 +3,7 @@ body {
     margin: 0;
     padding: 0;
     background-color: #e0e5ff;
-    min-height: 600px;
+    /*min-height: 600px;*/
     min-width: 800px;
 }
 
@@ -21,7 +21,8 @@ body {
 }
 
 #content-box {
-    margin-top: 100px;
+    margin-top: 70px;
+    padding: 20px;
 }
 
 #bottom-box {
@@ -51,6 +52,7 @@ body {
 }
 
     #logo-box > div {
+        margin: auto;
         box-sizing: border-box;
         box-shadow: 0px 0px 5px #808080 inset;
         padding: 5px;
@@ -105,12 +107,12 @@ body {
     right: 11px;
 }
 
-    #search-bar-button-box button {
+    #search-bar-button-box > button {
         box-sizing: border-box;
         width: 50px;
     }
 
-        #search-bar-button-box button + button {
+        #search-bar-button-box > button + button {
             width: 25px;
         }
 
@@ -132,4 +134,8 @@ body {
 }
 
 #player-list-button {
+}
+
+#register-validation-message-box {
+    transition: height 1s;
 }
