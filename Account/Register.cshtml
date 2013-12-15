@@ -3,56 +3,156 @@
     Layout = "~/_SiteLayout.cshtml";
 }
 
+<script src="~/Scripts/oij-music-account.js"></script>
 <script src="~/Scripts/jquery-2.0.3.js"></script>
 <script src="~/Scripts/jquery.form.js"></script>
-<script src="~/Scripts/jquery-ui-1.10.3.js"></script>
-<link href="~/Content/themes/base/jquery-ui.css" rel="stylesheet" />
 
 <script>
     $(function () {
-        $("#register-form").ajaxForm(function (responseText, statusText) {
-            var data = eval("(" + responseText + ")");
-            $("#register-validation-message-box").html(
-                data.nameHtmlValidationMessage +
-                "<br />" +
-                data.mailHtmlValidationMessage +
-                "<br />" +
-                data.passwordHtmlValidationMessage);
+        /*
+            客户端输入验证
+        */
+
+        // 输入控件状态初始化
+        var validationStatus = {
+            name: false,
+            mail: false,
+            password: false,
+            repassword: false
+        };
+        // 名称验证
+        $("#register-form [name='name']").keyup(function () {
+            if ($(this).val().length >= 2 && $(this).val().length <= 10) {
+                if (nameFormatValidation($(this).val())) {
+                    $.getJSON("/Account/Ajax/Register.cshtml", { name: $(this).val() }).done(function (data) {
+                        if (data.IsOk) {
+                            validationStatus.name = true;
+                            $("#register-form [name='name']").next().text("这个名字可以使用");
+                        } else {
+                            validationStatus.name = false;
+                            $("#register-form [name='name']").next().text("这个名字已经有别人在用了");
+                        }
+                    });
+                } else {
+                    validationStatus.name = false;
+                    $(this).next().text("名称含有非法字符");
+                }
+            } else {
+                validationStatus.name = false;
+                $(this).next().text("名称必须是 2~10 个字符组成");
+            }
+        });
+
+        // 邮箱验证
+        $("#register-form [name='mail']").keyup(function () {
+            if (mailFormatValidation($(this).val())) {
+                $.getJSON("/Account/Ajax/Register.cshtml", { mail: $(this).val() }).done(function (data) {
+                    if (data.IsOk) {
+                        validationStatus.mail = true;
+                        $("#register-form [name='mail']").next().text("这个邮箱可以使用");
+                    } else {
+                        validationStatus.mail = false;
+                        $("#register-form [name='mail']").next().text("这个邮箱已经注册过了");
+                    }
+                });
+            } else {
+                validationStatus.mail = false;
+                $(this).next().text("邮箱格式不正确");
+            }
+        });
+
+        // 密码验证
+        $("#register-form [name='password']").keyup(function () {
+            $("#register-re-password-input").clearInputs();
+            if ($(this).val().length >= 6 && $(this).val().length <= 32) {
+                switch (passwordFormatValidation($(this).val())) {
+                    case 1:
+                        validationStatus.password = true;
+                        $(this).next().text("密码等级: 低");
+                        break;
+                    case 2:
+                        validationStatus.password = true;
+                        $(this).next().text("密码等级: 中");
+                        break;
+                    case 3:
+                        validationStatus.password = true;
+                        $(this).next().text("密码等级: 高");
+                        break;
+                    default:
+                        validationStatus.password = false;
+                        $(this).next().text("密码含有非法字符");
+                        break;
+                }
+            } else {
+                validationStatus.password = false;
+                $(this).next().text("密码长度必须是 6~32 位");
+            }
+        });
+
+        // 密码二次验证
+        $("#register-re-password-input").keyup(function () {
+            if (validationStatus.password) {
+                if ($("#register-form [name='password']").val() == $(this).val()) {
+                    validationStatus.repassword = true;
+                    $(this).next().text("通过");
+                } else {
+                    validationStatus.repassword = false;
+                    $(this).next().text("两次密码输入不一致");
+                }
+            } else {
+                validationStatus.repassword = false;
+            }
+        });
+
+        // Ajax 提交
+        $("#register-form").submit(function () {
+            var submitButton = $("#register-form [name='create_account_btn']");
+            if (validationStatus.mail & validationStatus.name & validationStatus.password & validationStatus.repassword) {
+                $(this).ajaxSubmit(function (responseText, statusText) {
+                    if (statusText == "success") {
+                        submitButton.next().text(responseText + " Status: " + statusText);
+                    }
+                });
+            } else {
+                submitButton.next().text("注册信息不满足要求!");
+            }
+            return false;
         });
     });
 </script>
 
 <div>
-    <div id="register-validation-message-box">
-
-    </div>
+    <div id="register-validation-message-box"></div>
     <form id="register-form" action="~/Account/Ajax/Register" method="post">
         <label>
             昵称:
             <br />
             <input name="name" type="text" />
+            <span></span>
         </label>
         <br />
         <label>
             邮箱:
             <br />
             <input name="mail" type="text" placeholder="example@mail.com" />
+            <span></span>
         </label>
         <br />
         <label>
             创建密码:
             <br />
-            <input type="password" />
+            <input name="password" type="password" />
+            <span></span>
         </label>
         <br />
         <label>
             重新输入密码:
             <br />
-            <input name="password" type="password" />
+            <input id="register-re-password-input" type="password" />
+            <span></span>
         </label>
         <br />
-        单击创建帐户即表示你同意 OIJ-Music 服务协议以及隐私和 Cookie 声明。
-        <br />
         <button name="create_account_btn" type="submit">创建账户</button>
+        <span></span>
     </form>
 </div>
