@@ -15,8 +15,21 @@
                 if (db.QuerySingle("SELECT Name FROM Account WHERE Name = @0", name) == null &
                     db.QuerySingle("SELECT Email FROM Account WHERE Email = @0", mail) == null)
                 {
-                    db.Execute("INSERT INTO Account (Name, Email, Password) VALUES(@0, @1, @2)", name, mail, password);
-                    Response.Write("{ \"IsOk\": true }");
+                    string guid = Guid.NewGuid().ToString();
+                    App.MailValidationData[guid] = new Dictionary<string, object>();
+                    App.MailValidationData[guid]["name"] = name;
+                    App.MailValidationData[guid]["mail"] = mail;
+                    App.MailValidationData[guid]["password"] = password;
+                    App.MailValidationData[guid]["validdate"] = DateTime.Now.AddMinutes(10);
+                    try
+                    {
+                        WebMail.Send(mail, "OIJ-Music 注册验证", Request.Url + "?key=" + guid);
+                        Response.Write("{ \"IsOk\": true }");
+                    }
+                    catch (Exception)
+                    {
+                        Response.Write("{ \"IsOk\": false, \"reason\": \"邮件发送失败\" }");
+                    }
                 }
                 else
                 {
@@ -27,6 +40,50 @@
         else
         {
             Response.Write("{ \"IsOk\": false, \"reason\": \"这可能是一个 Hacker 行为!\" }");
+        }
+    }
+    else if (!Request.QueryString["key"].IsEmpty())
+    {
+        var guid = Request.QueryString["key"];
+        if (App.MailValidationData[guid] != null)
+        {
+            string name = App.MailValidationData[guid]["name"];
+            string mail = App.MailValidationData[guid]["mail"];
+            string password = App.MailValidationData[guid]["password"];
+            DateTime validDate = App.MailValidationData[guid]["validdate"];
+
+            // 检测验证是否过期
+            if (validDate > DateTime.Now)
+            {
+                using (var db = Database.Open("OIJ-Music"))
+                {
+                    if (db.QuerySingle("SELECT Name FROM Account WHERE Name = @0", name) == null &
+                        db.QuerySingle("SELECT Email FROM Account WHERE Email = @0", mail) == null)
+                    {
+                        db.Execute("INSERT INTO Account (Name, Email, Password, Time) VALUES(@0, @1, @2)", name, mail, password);
+                        // 注册成功
+                        App.MailValidationData[guid] = null; // 坐等自动回收
+                        Response.Write("<p>注册成功!</p>");
+                    }
+                    else
+                    {
+                        // 无效的验证请求
+                        App.MailValidationData[guid] = null; // 坐等自动回收
+                        Response.Write("<p>无效的验证请求</p>");
+                    }
+                }
+            }
+            else
+            {
+                // 无效的验证请求
+                App.MailValidationData[guid] = null; // 坐等自动回收
+                Response.Write("<p>无效的验证请求</p>");
+            }
+        }
+        else
+        {
+            // 无效的验证请求
+            Response.Write("<p>无效的验证请求</p>");
         }
     }
     else if (!Request.QueryString["name"].IsEmpty())

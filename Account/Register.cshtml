@@ -4,8 +4,8 @@
 }
 
 <script src="~/Scripts/oij-music-account.js"></script>
-<script src="~/Scripts/jquery-2.0.3.js"></script>
-<script src="~/Scripts/jquery.form.js"></script>
+@*<script src="~/Scripts/jquery-2.0.3.js"></script>
+<script src="~/Scripts/jquery.form.js"></script>*@
 
 <script>
     $(function () {
@@ -110,7 +110,12 @@
             if (validationStatus.mail & validationStatus.name & validationStatus.password & validationStatus.repassword) {
                 $(this).ajaxSubmit(function (responseText, statusText) {
                     if (statusText == "success") {
-                        submitButton.next().text(responseText + " Status: " + statusText);
+                        var json = eval("(" + responseText + ")");
+                        if (json.IsOk) {
+                            submitButton.next().text("邮件发送成功");
+                        } else {
+                            submitButton.next().text("请求失败 原因:" + json.reason);
+                        }
                     }
                 });
             } else {
