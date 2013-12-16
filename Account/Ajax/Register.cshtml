@@ -1,6 +1,14 @@
 ﻿@using System.Text.RegularExpressions;
+@using System.Security.Cryptography;
+@using System.Text;
+@using MD5Helper;
 
 @{
+    // 设置客户端缓存策略
+    Response.Cache.SetExpires(DateTime.Now.AddSeconds(10));
+    Response.Cache.SetCacheability(HttpCacheability.Public);
+    Response.Cache.SetValidUntilExpires(true);
+
     if (IsPost)
     {
         var name = Request.Form["name"];
@@ -8,7 +16,7 @@
         var password = Request.Form["password"];
         if (Regex.IsMatch(name, @"^[\w\u3100-\u312F\u4E00-\u9FCC\uF900-\uFAFF\u2F00-\u2FDF\u1100-\u11FF\uAC00-\uD7AF\u3040-\u309F\u30A0-\u30FF\u3190-\u319F\uA4D0-\uA4FF\u16F00-\u16F9F]+$") &
             Regex.IsMatch(mail, @"^(\w+\-|\w+\.)*\w+@(\w+\-|\w+\.)*\w+\.\w+$") & 
-            Regex.IsMatch(password, @"^\w+$"))
+            Regex.IsMatch(password, @"^\w{6,}$"))
         {
             using (var db = Database.Open("OIJ-Music"))
             {
@@ -16,6 +24,11 @@
                     db.QuerySingle("SELECT Email FROM Account WHERE Email = @0", mail) == null)
                 {
                     string guid = Guid.NewGuid().ToString();
+                    // 对密码进行一次摘要
+                    using (MD5 md5Hash = MD5.Create())
+                    {
+                        password = MD5Helper.GetMd5Hash(md5Hash, password);
+                    }
                     App.MailValidationData[guid] = new Dictionary<string, object>();
                     App.MailValidationData[guid]["name"] = name;
                     App.MailValidationData[guid]["mail"] = mail;
@@ -60,7 +73,7 @@
                     if (db.QuerySingle("SELECT Name FROM Account WHERE Name = @0", name) == null &
                         db.QuerySingle("SELECT Email FROM Account WHERE Email = @0", mail) == null)
                     {
-                        db.Execute("INSERT INTO Account (Name, Email, Password, Time) VALUES(@0, @1, @2)", name, mail, password);
+                        db.Execute("INSERT INTO Account (Name, Email, Password) VALUES(@0, @1, @2)", name, mail, password);
                         // 注册成功
                         App.MailValidationData[guid] = null; // 坐等自动回收
                         Response.Write("<p>注册成功!</p>");
