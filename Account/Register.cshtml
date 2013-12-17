@@ -111,7 +111,7 @@
 
         // Ajax 提交
         $("#register-form").submit(function () {
-            var submitButton = $("#register-form [name='create_account_btn']");
+            var submitButton = $("#register-form button:last");
             if (validationStatus.mail & validationStatus.name & validationStatus.password & validationStatus.repassword) {
                 // 对密码进行一次摘要算法
                 $("#register-form [name='password']").val(CryptoJS.SHA3($("#register-form [name='password']").val()));
@@ -141,34 +141,34 @@
     <div id="register-validation-message-box"></div>
     <form id="register-form" action="~/Account/Ajax/Register" method="post">
         <label>
-            昵称:
+            <span>昵称</span>
             <br />
             <input name="name" type="text" />
             <span></span>
         </label>
         <br />
         <label>
-            邮箱:
+            <span>邮箱</span>
             <br />
             <input name="mail" type="text" placeholder="example@mail.com" />
             <span></span>
         </label>
         <br />
         <label>
-            创建密码:
+            <span>创建密码</span>
             <br />
             <input name="password" type="password" />
             <span></span>
         </label>
         <br />
         <label>
-            重新输入密码:
+            <span>重新输入密码</span>
             <br />
             <input id="register-re-password-input" type="password" />
             <span></span>
         </label>
         <br />
-        <button name="create_account_btn" type="submit">创建账户</button>
+        <button type="submit">创建账户</button>
         <span></span>
     </form>
 </div>

@@ -1,0 +1,25 @@
+﻿@using System.Text.RegularExpressions;
+
+@{
+    Page.IsLogin = false;
+    
+    // 检测是否有登录记录
+    if (Request.Cookies["1"] != null)
+    {
+        // 自动登录
+        var cookieData = Regex.Split(Request.Cookies["1"].Value, "&");
+        if (cookieData[0] != null && cookieData[1] != null)
+        {
+            using (var db = Database.Open("OIJ-Music"))
+            {
+                var row = db.QuerySingle("SELECT Id,Name,Email FROM Account WHERE Id = @0 AND Password = @1", cookieData[0], cookieData[1]);
+                if (row != null)
+                {
+                    // 登录成功处理
+                    Page.IsLogin = true;
+                    Page.AccountId = row.Id;
+                }
+            }
+        }
+    }
+}

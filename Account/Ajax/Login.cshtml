@@ -1,0 +1,102 @@
+﻿@using System.Security.Cryptography;
+@using MD5Helper;
+@using System.Text.RegularExpressions;
+
+@{
+    if (IsPost)
+    {
+        var accountName = Request.Form["account_name"];
+        var password = Request.Form["password"];
+        var remember = Request.Form["remember"];
+        long? accountId = null;
+        
+        // 对密码进行摘要
+        using (MD5 md5Hash = MD5.Create())
+        {
+            password = MD5Helper.GetMd5Hash(md5Hash, password);
+        }
+
+        using (var db = Database.Open("OIJ-Music"))
+        {
+            // 呵呵，就这这样乱了，咱不纠结
+            var success = false;
+            // 邮箱或昵称登录
+            if (Regex.IsMatch(accountName, @"^(\w+\-|\w+\.)*\w+@(\w+\-|\w+\.)*\w+\.\w+$"))
+            {
+                // 用户使用邮箱进行登录
+                var row = db.QuerySingle("SELECT Id,Password FROM Account WHERE Email = @0", accountName);
+                if (row != null)
+                {
+                    if (password == row.Password)
+                    {
+                        // 登录成功
+                        Response.Write("{ \"IsOk\": true }");
+                        accountId = row.Id;
+                        success = true;
+                    }
+                    else
+                    {
+                        // 密码错误登录失败
+                        Response.Write("{ \"IsOk\": false, \"reason\": \"密码错误登录失败\", \"ErrorId\": 1 }");
+                    }
+                }
+                else
+                {
+                    // 账户名不存在登录失败
+                    Response.Write("{ \"IsOk\": false, \"reason\": \"账户名不存在登录失败\", \"ErrorId\": 2 }");
+                }
+            }
+            else if (Regex.IsMatch(accountName, @"^[\w\u3100-\u312F\u4E00-\u9FCC\uF900-\uFAFF\u2F00-\u2FDF\u1100-\u11FF\uAC00-\uD7AF\u3040-\u309F\u30A0-\u30FF\u3190-\u319F\uA4D0-\uA4FF\u16F00-\u16F9F]+$"))
+            {
+                // 用户使用昵称进行登录
+                var row = db.QuerySingle("SELECT Id,Password FROM Account WHERE Name = @0", accountName);
+                if (row != null)
+                {
+                    if (password == row.Password)
+                    {
+                        // 登录成功
+                        Response.Write("{ \"IsOk\": true }");
+                        accountId = row.Id;
+                        success = true;
+                    }
+                    else
+                    {
+                        // 密码错误登录失败
+                        Response.Write("{ \"IsOk\": false, \"reason\": \"密码错误登录失败\", \"ErrorId\": 1 }");
+                    }
+                }
+                else
+                {
+                    // 账户名不存在登录失败
+                    Response.Write("{ \"IsOk\": false, \"reason\": \"账户名不存在登录失败\", \"ErrorId\": 2 }");
+                }
+            }
+            else
+            {
+                // 账户名不合法
+                Response.Write("{ \"IsOk\": false, \"reason\": \"账户名不合法\", \"ErrorId\": 3 }");
+            }
+            
+            // 登录成功的处理
+            if (success)
+            {
+                string loginId = accountId + "&" + password;
+                if (remember != null)
+                {
+                    // 勾选记住我处理
+                    HttpCookie loginCookie = new HttpCookie("1", loginId);
+                    loginCookie.HttpOnly = true;
+                    loginCookie.Expires = DateTime.Now.AddMonths(1); // 默认最长记住 1 个月
+                    Response.Cookies.Add(loginCookie);
+                }
+                else
+                {
+                    // 会话登录状态
+                    HttpCookie loginCookie = new HttpCookie("1", loginId);
+                    loginCookie.HttpOnly = true;
+                    Response.Cookies.Add(loginCookie);
+                }
+            }
+        }
+    }
+}
