@@ -1,31 +1,8 @@
 ﻿@{
     Layout = "~/_SiteLayout.cshtml";
     Page.Title = "主页";
-
-    dynamic AccountName = null;
-    dynamic AccountEmail = null;
-    dynamic AccountId = null;
-
-    if (Page.IsLogin)
-    {
-        using (var db = Database.Open("OIJ-Music"))
-        {
-            var row = db.QuerySingle("SELECT Id,Name,Email FROM Account WHERE Id = @0", Page.AccountId);
-            if (row != null)
-            {
-                AccountName = row.Name;
-                AccountEmail = row.Email;
-                AccountId = row.Id;
-            }
-        }
-    }
 }
 
 <div>
-    @if (Page.IsLogin)
-    {
-        <p>Name: @AccountName</p>
-        <p>Email: @AccountEmail</p>
-        <p>ID: @AccountId</p>
-    }
+    <div id="nav-box"></div>
 </div>

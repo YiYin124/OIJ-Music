@@ -1,0 +1,30 @@
+﻿@{
+}
+
+<script>
+    $(function () {
+        $("#search-bar-button-box button").button({
+            text: false,
+            icons: {
+                primary: "ui-icon-search"
+            }
+        }).next().button({
+            text: false,
+            icons: {
+                primary: "ui-icon-triangle-1-s"
+            }
+        }).parent().buttonset();
+    });
+</script>
+
+<div id="search-box">
+    <form id="search-bar" method="post">
+        <div id="search-bar-input-box">
+            <input type="search" class="ui-button ui-widget ui-state-default ui-corner-all" />
+        </div>
+        <div id="search-bar-button-box">
+            <button type="submit">搜索</button>
+            <button type="button">选项</button>
+        </div>
+    </form>
+</div>

@@ -1,0 +1,78 @@
+﻿@{
+    dynamic AccountName = null;
+    dynamic AccountEmail = null;
+
+    if (Page.IsLogin)
+    {
+        using (var db = Database.Open("OIJ-Music"))
+        {
+            var row = db.QuerySingle("SELECT Name,Email FROM Account WHERE Id = @0", Page.AccountId);
+            if (row != null)
+            {
+                AccountName = row.Name;
+                AccountEmail = row.Email;
+            }
+        }
+    }
+}
+
+@*<script src="~/Scripts/jquery-2.0.3.js"></script>*@
+@*<script src="~/Scripts/jquery-ui-1.10.3.js"></script>*@
+
+<script>
+    $(function () {
+        $("#rl-btn").buttonset();
+        $("#user-menu").menu().hide();
+        $("#user-gravatar > img").hover(function () {
+            var menu = $("#user-menu");
+            var img = $("#user-gravatar > img");
+            menu.css("left", img.offset().left);
+            menu.css("top", img.offset().top + img.outerHeight());
+            menu.show();
+            menu.hover(function () {
+                menu.show();
+            }, function () {
+                menu.hide();
+            });
+        }, function () {
+            var menu = $("#user-menu");
+            menu.hide();
+        });
+    });
+</script>
+
+<div id="user-box">
+    @if (Page.IsLogin)
+    {
+        <div>
+            <div id="user-info">
+                <span>@AccountName</span>
+            </div>
+            <div id="user-gravatar">
+                @Gravatar.GetHtml(@AccountEmail)
+            </div>
+        </div>
+    }
+    else
+    {
+        <div id="rl-btn">
+            <button>注册</button>
+            <button>登录</button>
+        </div>
+    }
+</div>
+
+<ul id="user-menu">
+    <li>
+        <a href="#">
+            <span class="ui-icon ui-icon-person"></span>
+            个人信息
+        </a>
+    </li>
+    <li>
+        <a href="#">
+            <span class="ui-icon ui-icon-close"></span>
+            注销
+        </a>
+    </li>
+</ul>

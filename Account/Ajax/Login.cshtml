@@ -5,7 +5,7 @@
 @{
     if (IsPost)
     {
-        var accountName = Request.Form["account_name"];
+        var accountName = Request.Form["account_name"].ToLowerInvariant();
         var password = Request.Form["password"];
         var remember = Request.Form["remember"];
         long? accountId = null;

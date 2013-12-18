@@ -22,7 +22,6 @@ body {
 
 #content-box {
     margin-top: 70px;
-    padding: 20px;
 }
 
 #bottom-box {
@@ -57,11 +56,13 @@ body {
         box-shadow: 0px 0px 5px #808080 inset;
         padding: 5px;
         width: 200px;
-        height: 100%;
+        height: 150%;
         border-radius: 10px;
+        background-color: pink;
     }
 
         #logo-box > div > h1 {
+            font-size: 225%;
             display: inline;
             float: left;
         }
@@ -119,8 +120,54 @@ body {
 #user-box {
     width: 25%;
     height: 100%;
-    float: right;
+    float: left;
     /*background-color: green;*/
+}
+
+    #user-box > div {
+        height: 100%;
+        width: 200px;
+        margin: auto;
+    }
+
+/*用户头像*/
+#user-gravatar {
+    height: 100%;
+}
+
+    #user-gravatar > img {
+        height: 100%;
+        float: right;
+        box-sizing: border-box;
+        border: 2px dashed #808080;
+    }
+
+#user-info {
+    text-align: center;
+    box-sizing: border-box;
+    padding: 5px;
+    float: right;
+    height: 100%;
+    width: 100px;
+}
+
+    #user-info > span {
+        text-shadow: 0px 0px 3px #808080;
+        font-size: 1.5em;
+        font-weight: 700;
+    }
+
+#rl-btn {
+    box-sizing: border-box;
+    padding: 5px;
+    width: 150px;
+    font-size: 1.5em;
+    margin: auto;
+}
+
+/*用户头像弹出菜单*/
+#user-menu {
+    position: fixed;
 }
 
 /*下边栏内容*/
@@ -134,8 +181,4 @@ body {
 }
 
 #player-list-button {
-}
-
-#register-validation-message-box {
-    transition: height 1s;
 }
