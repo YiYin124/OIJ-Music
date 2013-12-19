@@ -16,31 +16,160 @@
     }
 }
 
-@*<script src="~/Scripts/jquery-2.0.3.js"></script>*@
-@*<script src="~/Scripts/jquery-ui-1.10.3.js"></script>*@
+@*<script src="~/Scripts/jquery-2.0.3.js"></script>
+<script src="~/Scripts/jquery-ui-1.10.3.js"></script>
+<script src="~/Scripts/jquery-ui-1.10.3.js"></script>*@
 
-<script>
-    $(function () {
-        $("#rl-btn").buttonset();
-        $("#user-menu").menu().hide();
-        $("#user-gravatar > img").hover(function () {
-            var menu = $("#user-menu");
-            var img = $("#user-gravatar > img");
-            menu.css("left", img.offset().left);
-            menu.css("top", img.offset().top + img.outerHeight());
-            menu.show();
-            menu.hover(function () {
-                menu.show();
+@if (Page.IsLogin)
+{
+    <script>
+        $(function () {
+            var IsLoginOut = false;
+
+            $("#user-menu").menu().hide();
+            $("#user-gravatar").hover(function () {
+                var menu = $("#user-menu");
+                var img = $("#user-gravatar > img");
+                // JQ UI 定位有点奇怪
+                menu.css("left", img.offset().left);
+                menu.css("top", img.offset().top + img.outerHeight());
+                menu.show("fade");
             }, function () {
-                menu.hide();
+                var menu = $("#user-menu");
+                menu.hide("fade");
             });
-        }, function () {
-            var menu = $("#user-menu");
-            menu.hide();
-        });
-    });
-</script>
 
+            $("#loginout-dialog").dialog({
+                resizable: false,
+                autoOpen: false,
+                modal: true,
+                show: {
+                    effect: "drop",
+                    //duration: 500
+                },
+                hide: {
+                    effect: "drop",
+                    //duration: 500
+                },
+                buttons: {
+                    "确定": function () {
+                        IsLoginOut = true;
+                        $(this).dialog("close");
+                    },
+                },
+                close: function () {
+                    // 关闭窗口后刷新页面
+                    if (IsLoginOut)
+                        window.location.reload();
+                }
+            });
+
+            $("#user-loginout-btn").click(function () {
+                // Ajax 注销
+                $.ajax("/Account/Ajax/LoginOut.cshtml").done(function () {
+                    $("#loginout-dialog").dialog("open");
+                });
+            });
+        });
+    </script>
+}
+else
+{
+    <script>
+        $(function () {
+            // UI
+            var IsLogin = false;
+            $("#login-alert-box").hide();
+            $("#register-login-btn").buttonset();
+
+            $("#login-btn").click(function () {
+                $("#login-dialog").dialog("open");
+            });
+
+            $("#login-form [title]").tooltip({
+                position: {
+                    my: "left top",
+                    at: "left bottom",
+                },
+            });
+
+            $("#login-dialog").dialog({
+                autoOpen: false,
+                resizable: false,
+                modal: true,
+                show: {
+                    effect: "drop",
+                    //duration: 500
+                },
+                hide: {
+                    effect: "drop",
+                    //duration: 500
+                },
+                close: function () {
+                    // 关闭窗口后刷新页面
+                    if (IsLogin)
+                        window.location.reload();
+                },
+                buttons: {
+                    "登录": function () {
+                        var loginAlertBox = $("#login-alert-box");
+                        var loginAlertText = $("#login-alert-text");
+                        var loginNameInput = $("#login-name-input > input");
+                        var loginPasswordInput = $("#login-password-input > input");
+
+                        loginAlertBox.hide("clip");
+                        loginAlertText.text("");
+
+                        if (loginNameInput.val() == "") {
+                            loginAlertText.text("账户名不能为空");
+                            loginAlertBox.show("clip");
+                            return;
+                        }
+
+                        if (loginNameInput.val().length < 2) {
+                            loginAlertText.text("账户名长度不正确");
+                            loginAlertBox.show("clip");
+                            return;
+                        }
+
+                        if (loginPasswordInput.val() == "") {
+                            loginAlertText.text("密码不能为空");
+                            loginAlertBox.show("clip");
+                            return;
+                        }
+
+                        if (loginPasswordInput.val().length < 6) {
+                            loginAlertText.text("密码长度不正确");
+                            loginAlertBox.show("clip");
+                            return;
+                        }
+
+                        // 对密码进行摘要
+                        loginPasswordInput.val(CryptoJS.SHA3(loginPasswordInput.val()));
+
+                        $("#login-form").ajaxSubmit(function (responseText, statusText) {
+                            if (statusText == "success") {
+                                var json = eval("(" + responseText + ")");
+                                if (json.IsOk) {
+                                    loginNameInput.attr("disabled", "disabled");
+                                    loginPasswordInput.attr("disabled", "disabled");
+                                    IsLogin = true;
+                                    $("#login-dialog").dialog("close");
+                                } else {
+                                    loginAlertText.text(json.reason);
+                                    loginAlertBox.show("clip");
+                                }
+                            } else {
+                                loginAlertText.text("服务器连接丢失请重试");
+                                loginAlertBox.show("clip");
+                            }
+                        });
+                    }
+                }
+            });
+        });
+    </script>
+}
 <div id="user-box">
     @if (Page.IsLogin)
     {
@@ -50,29 +179,73 @@
             </div>
             <div id="user-gravatar">
                 @Gravatar.GetHtml(@AccountEmail)
+                <ul id="user-menu">
+                    <li>
+                        <a id="user-info-btn">
+                            <span class="ui-icon ui-icon-person"></span>
+                            个人信息
+                        </a>
+                    </li>
+                    <li>
+                        <a id="user-loginout-btn">
+                            <span class="ui-icon ui-icon-close"></span>
+                            注销
+                        </a>
+                    </li>
+                </ul>
             </div>
         </div>
     }
     else
     {
-        <div id="rl-btn">
-            <button>注册</button>
-            <button>登录</button>
+        <div id="register-login-btn">
+            <a id="register-btn">注册</a>
+            <a id="login-btn">登录</a>
         </div>
     }
 </div>
 
-<ul id="user-menu">
-    <li>
-        <a href="#">
-            <span class="ui-icon ui-icon-person"></span>
-            个人信息
-        </a>
-    </li>
-    <li>
-        <a href="#">
-            <span class="ui-icon ui-icon-close"></span>
-            注销
-        </a>
-    </li>
-</ul>
+@if (Page.IsLogin)
+{
+    <div id="loginout-dialog" title="注销">
+        <p>
+            @*<span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>*@
+            你确定要注销这个账户嘛?
+        </p>
+    </div>
+}
+else
+{
+    <div id="register-dialog" title="注册">
+    </div>
+    <div id="login-dialog" title="登录">
+        <div id="login-alert-box" class="ui-widget">
+            <div class="ui-state-highlight ui-corner-all">
+                <p id="login-alert-p">
+                    <span class="ui-icon ui-icon-info"></span>
+                    <span id="login-alert-text"></span>
+                </p>
+            </div>
+        </div>
+        <form id="login-form" method="post" action="~/Account/Ajax/Login">
+            <label id="login-name-input">
+                <span>账户名</span>
+                <br />
+                <input name="account_name" type="text" title="请输入你的登录邮箱或昵称" />
+            </label>
+            <br />
+            <br />
+            <label id="login-password-input">
+                <span>密码</span>
+                <br />
+                <input name="password" type="password" title="请输入你的登录密码" />
+            </label>
+            <br />
+            <br />
+            <label id="login-autologin-checkbox">
+                <span>记住我(请不要在公共电脑勾选此项)</span>
+                <input name="remember" type="checkbox" title="勾选此项下次就不用重复登录了"/>
+            </label>
+        </form>
+    </div>
+}

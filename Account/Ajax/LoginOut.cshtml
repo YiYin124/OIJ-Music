@@ -1,0 +1,12 @@
+﻿@{
+    // 设置客户端不缓存
+    Response.Cache.SetExpires(DateTime.Now.AddDays(-1));
+    Response.Cache.SetCacheability(HttpCacheability.Public);
+    Response.Cache.SetValidUntilExpires(true);
+    
+    // 删除用户 Cookie
+    HttpCookie loginCookie = new HttpCookie("1");
+    loginCookie.HttpOnly = true;
+    loginCookie.Expires = DateTime.Now.AddDays(-1);
+    Response.Cookies.Add(loginCookie);
+}

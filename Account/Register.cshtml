@@ -1,6 +1,11 @@
 ﻿@{
     Page.Title = "注册";
     Layout = "~/_SiteLayout.cshtml";
+    if (Page.IsLogin)
+    {
+        Response.Redirect("~");
+        return;
+    }
 }
 
 @section Scripts {

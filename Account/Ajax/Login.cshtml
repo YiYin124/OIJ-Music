@@ -3,9 +3,15 @@
 @using System.Text.RegularExpressions;
 
 @{
+    if (Page.IsLogin)
+    {
+        Response.Redirect("~");
+        return;
+    }
+    
     if (IsPost)
     {
-        var accountName = Request.Form["account_name"].ToLowerInvariant();
+        var accountName = Request.Form["account_name"];
         var password = Request.Form["password"];
         var remember = Request.Form["remember"];
         long? accountId = null;

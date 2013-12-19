@@ -16,12 +16,12 @@ body {
     height: 50px;
     width: 100%;
     min-width: 800px;
-    background-color: #ffccdf;
+    background-color: pink;
     box-shadow: 0px 0px 10px #808080;
 }
 
 #content-box {
-    margin-top: 70px;
+    margin-top: 95px;
 }
 
 #bottom-box {
@@ -32,7 +32,7 @@ body {
     height: 0px;
     width: 100%;
     min-width: 800px;
-    background-color: #ffccdf;
+    background-color: pink;
     box-shadow: 0px 0px 10px #808080;
     overflow: hidden;
     transition: height 1s;
@@ -43,11 +43,15 @@ body {
     }
 
 /*上边栏内容*/
+
+/*LOGO*/
 #logo-box {
     float: left;
     width: 25%;
     height: 100%;
     /*background-color: #b6ff00;*/
+    padding-left: 5px;
+    box-sizing: border-box;
 }
 
     #logo-box > div {
@@ -55,8 +59,9 @@ body {
         box-sizing: border-box;
         box-shadow: 0px 0px 5px #808080 inset;
         padding: 5px;
-        width: 200px;
-        height: 150%;
+        width: 195px;
+        /*height: 100%;*/
+        height: 140%;
         border-radius: 10px;
         background-color: pink;
     }
@@ -74,6 +79,7 @@ body {
             border-radius: 10px;
         }
 
+/*搜索栏*/
 #search-box {
     width: 50%;
     height: 100%;
@@ -117,6 +123,7 @@ body {
             width: 25px;
         }
 
+/*用户栏*/
 #user-box {
     width: 25%;
     height: 100%;
@@ -132,17 +139,26 @@ body {
 
 /*用户头像*/
 #user-gravatar {
+    width: 50px;
     height: 100%;
+    float: right;
 }
 
     #user-gravatar > img {
-        height: 100%;
-        float: right;
         box-sizing: border-box;
-        border: 2px dashed #808080;
+        border-top-left-radius: 5px;
+        border-bottom-left-radius: 5px;
+        box-shadow: 0 0 5px #808080;
+        height: 100%;
+        width: 100%;
     }
 
+/*用户信息栏*/
 #user-info {
+    background-color: #fbffcc;
+    border-top-right-radius: 5px;
+    border-bottom-right-radius: 5px;
+    box-shadow: 0 0 5px #808080;
     text-align: center;
     box-sizing: border-box;
     padding: 5px;
@@ -152,12 +168,13 @@ body {
 }
 
     #user-info > span {
-        text-shadow: 0px 0px 3px #808080;
+        /*text-shadow: 0px 2px 2px #808080;*/
         font-size: 1.5em;
         font-weight: 700;
     }
 
-#rl-btn {
+/*登录注册按钮*/
+#register-login-btn {
     box-sizing: border-box;
     padding: 5px;
     width: 150px;
@@ -167,11 +184,66 @@ body {
 
 /*用户头像弹出菜单*/
 #user-menu {
-    position: fixed;
+    position: absolute;
+}
+
+/*注销对话框*/
+#loginout-dialog > p {
+    display: inline-block;
+    width: 100%;
+    text-align: center;
 }
 
 /*下边栏内容*/
 #player-box {
+}
+
+/*登录对话框*/
+#login-name-input > input {
+    box-sizing: border-box;
+    width: 100%;
+}
+
+#login-password-input > input {
+    box-sizing: border-box;
+    width: 100%;
+}
+
+#login-autologin-checkbox > span {
+    float: left;
+}
+#login-autologin-checkbox > input {
+    float: right;
+}
+
+/*登录按钮居中拉伸*/
+#login-dialog + div {
+    padding: 5px;
+}
+
+#login-dialog + div > div {
+    width: 100%;
+}
+
+#login-dialog + div > div > button {
+    box-sizing: border-box;
+    width: 100%;
+}
+
+/*登录提示框*/
+#login-alert-box > div {
+    margin-top: 5px; 
+    margin-bottom: 5px; 
+    padding: 0px 0.7em;
+}
+
+#login-alert-p {
+    display: inline-block;
+}
+
+#login-alert-p > span {
+    margin-right: 0.3em;
+    float: left;
 }
 
 #player-control-box {

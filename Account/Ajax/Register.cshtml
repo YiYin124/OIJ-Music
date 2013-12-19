@@ -4,6 +4,12 @@
 @using MD5Helper;
 
 @{
+    if (Page.IsLogin)
+    {
+        Response.Redirect("~");
+        return;
+    }
+    
     // 设置客户端缓存策略
     Response.Cache.SetExpires(DateTime.Now.AddSeconds(10));
     Response.Cache.SetCacheability(HttpCacheability.Public);
@@ -11,8 +17,8 @@
 
     if (IsPost)
     {
-        var name = Request.Form["name"].ToLowerInvariant();
-        var mail = Request.Form["mail"].ToLowerInvariant();
+        var name = Request.Form["name"];
+        var mail = Request.Form["mail"];
         var password = Request.Form["password"];
         if (Regex.IsMatch(name, @"^[\w\u3100-\u312F\u4E00-\u9FCC\uF900-\uFAFF\u2F00-\u2FDF\u1100-\u11FF\uAC00-\uD7AF\u3040-\u309F\u30A0-\u30FF\u3190-\u319F\uA4D0-\uA4FF\u16F00-\u16F9F]+$") &
             Regex.IsMatch(mail, @"^(\w+\-|\w+\.)*\w+@(\w+\-|\w+\.)*\w+\.\w+$") & 
@@ -103,7 +109,7 @@
     {
         using (var db = Database.Open("OIJ-Music"))
         {
-            if (db.QuerySingle("SELECT Name FROM Account WHERE Name = @0", Request.QueryString["name"].ToLowerInvariant()) == null)
+            if (db.QuerySingle("SELECT Name FROM Account WHERE Name = @0", Request.QueryString["name"]) == null)
             {
                 Response.Write("{ \"IsOk\": true }");
             }
@@ -117,7 +123,7 @@
     {
         using (var db = Database.Open("OIJ-Music"))
         {
-            if (db.QuerySingle("SELECT Email FROM Account WHERE Email = @0", Request.QueryString["mail"].ToLowerInvariant()) == null)
+            if (db.QuerySingle("SELECT Email FROM Account WHERE Email = @0", Request.QueryString["mail"]) == null)
             {
                 Response.Write("{ \"IsOk\": true }");
             }
