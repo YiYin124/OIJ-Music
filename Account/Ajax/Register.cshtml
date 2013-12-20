@@ -83,6 +83,21 @@
                         // 注册成功
                         App.MailValidationData[guid] = null; // 坐等自动回收
                         Response.Write("<p>注册成功!</p>");
+
+                        var row = db.QuerySingle("SELECT Id,Password FROM Account WHERE Email = @0", mail);
+                        
+                        // 注册成功后自动登录
+                        if (row != null)
+                        {
+                            string loginId = row.Id + "&" + row.Password;
+
+                            // 会话登录状态
+                            HttpCookie loginCookie = new HttpCookie("1", loginId);
+                            loginCookie.HttpOnly = true;
+                            Response.Cookies.Add(loginCookie);
+                        
+                            Response.Redirect("~");
+                        }
                     }
                     else
                     {
@@ -96,7 +111,7 @@
             {
                 // 无效的验证请求
                 App.MailValidationData[guid] = null; // 坐等自动回收
-                Response.Write("<p>无效的验证请求</p>");
+                Response.Write("<p>验证请求已过期</p>");
             }
         }
         else

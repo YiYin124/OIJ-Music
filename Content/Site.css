@@ -212,6 +212,7 @@ body {
 #login-autologin-checkbox > span {
     float: left;
 }
+
 #login-autologin-checkbox > input {
     float: right;
 }
@@ -221,19 +222,19 @@ body {
     padding: 5px;
 }
 
-#login-dialog + div > div {
-    width: 100%;
-}
+    #login-dialog + div > div {
+        width: 100%;
+    }
 
-#login-dialog + div > div > button {
-    box-sizing: border-box;
-    width: 100%;
-}
+        #login-dialog + div > div > button {
+            box-sizing: border-box;
+            width: 100%;
+        }
 
 /*登录提示框*/
 #login-alert-box > div {
-    margin-top: 5px; 
-    margin-bottom: 5px; 
+    margin-top: 5px;
+    margin-bottom: 5px;
     padding: 0px 0.7em;
 }
 
@@ -241,10 +242,41 @@ body {
     display: inline-block;
 }
 
-#login-alert-p > span {
-    margin-right: 0.3em;
-    float: left;
+    #login-alert-p > span {
+        margin-right: 0.3em;
+        float: left;
+    }
+
+/*注册对话框*/
+#register-name-input > input {
+    box-sizing: border-box;
+    width: 100%;
 }
+
+#register-mail-input > input {
+    box-sizing: border-box;
+    width: 100%;
+}
+
+#register-password-input > input {
+    box-sizing: border-box;
+    width: 100%;
+}
+
+#register-re-password-input > input {
+    box-sizing: border-box;
+    width: 100%;
+}
+
+/*带图标的提示框*/
+.icon-tip {
+    display: inline-block;
+    padding: 5px;
+}
+
+    .icon-tip > span {
+        float: left;
+    }
 
 #player-control-box {
 }

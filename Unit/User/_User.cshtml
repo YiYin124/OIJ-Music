@@ -86,12 +86,17 @@ else
                 $("#login-dialog").dialog("open");
             });
 
-            $("#login-form [title]").tooltip({
-                position: {
-                    my: "left top",
-                    at: "left bottom",
-                },
+            $("#register-btn").click(function () {
+                $("#register-dialog").dialog("open");
             });
+
+            // 有点小问题暂时先去掉
+            //$("#login-form [title]").tooltip({
+            //    position: {
+            //        my: "left top",
+            //        at: "left bottom",
+            //    },
+            //});
 
             $("#login-dialog").dialog({
                 autoOpen: false,
@@ -160,11 +165,289 @@ else
                                     loginAlertBox.show("clip");
                                 }
                             } else {
-                                loginAlertText.text("服务器连接丢失请重试");
+                                loginAlertText.text("与服务器连接丢失请重试");
                                 loginAlertBox.show("clip");
                             }
                         });
                     }
+                }
+            });
+
+            $("#register-dialog").dialog({
+                autoOpen: false,
+                resizable: false,
+                modal: true,
+                show: {
+                    effect: "drop",
+                },
+                hide: {
+                    effect: "drop",
+                },
+                close: function () {
+                    //if (IsLogin)
+                    //    window.location.reload();
+                },
+            });
+
+            $("#register-submit-tip").hide();
+            // 设置无进度状态栏
+            $("#register-submit-progressbar").progressbar({
+                value: false,
+            });
+            $("#register-submit-progressbar").hide();
+
+
+            $("#register-submit-button").button({
+                icons: {
+                    primary: "ui-icon-mail-closed"
+                }
+            }).click(function () {
+
+                var registerSubmitButton = $(this);
+
+                // 还原
+                $("#register-submit-tip").hide();
+                $("#register-submit-tip").removeClass("ui-state-highlight");
+                $("#register-submit-tip").removeClass("ui-state-error");
+                $("#register-submit-tip span:first").removeClass("ui-icon-circle-close");
+                $("#register-submit-tip span:first").removeClass("ui-icon-circle-check");
+
+                var registerNameInput = $("#register-name-input > input");
+                var registerMailInput = $("#register-mail-input > input");
+                var registerPasswordInput = $("#register-password-input > input");
+                var registerRePasswordInput = $("#register-re-password-input > input");
+
+                registerNameInput.removeAttr("disabled");
+                registerMailInput.removeAttr("disabled");
+                registerPasswordInput.removeAttr("disabled");
+                registerRePasswordInput.removeAttr("disabled");
+
+                if (validationStatus.mail & validationStatus.name & validationStatus.password & validationStatus.repassword) {
+                    // 对密码进行一次算法摘要
+                    $("#register-password-input > input").val(CryptoJS.SHA3($("#register-password-input > input").val()));
+                    $("#register-submit-progressbar").show();
+                    $("#register-form").ajaxSubmit(function (responseText, statusText) {
+                        $("#register-submit-progressbar").hide();
+                        if (statusText == "success") {
+                            var json = eval("(" + responseText + ")");
+                            if (json.IsOk) {
+                                $("#register-submit-tip").addClass("ui-state-highlight");
+                                $("#register-submit-tip span:first").addClass("ui-icon-circle-check");
+                                $("#register-submit-tip span:last").text("验证邮件发送成功");
+                                $("#register-submit-tip").show();
+                            } else {
+                                $("#register-submit-tip").addClass("ui-state-error");
+                                $("#register-submit-tip span:first").addClass("ui-icon-circle-close");
+                                $("#register-submit-tip span:last").text("请求失败 原因:" + json.reason);
+                                $("#register-submit-tip").show();
+                            }
+                        }
+                        else {
+                            $("#register-submit-tip").addClass("ui-state-error");
+                            $("#register-submit-tip span:first").addClass("ui-icon-circle-close");
+                            $("#register-submit-tip span:last").text("与服务器连接丢失请重试");
+                            $("#register-submit-tip").show();
+                        }
+                        registerSubmitButton.button("option", "label", "重新发送");
+                        registerSubmitButton.button("option", "disabled", false);
+                    });
+
+                    registerNameInput.attr("disabled", "disabled");
+                    registerMailInput.attr("disabled", "disabled");
+                    registerPasswordInput.attr("disabled", "disabled");
+                    registerRePasswordInput.attr("disabled", "disabled");
+
+                    registerSubmitButton.button("option", "disabled", true);
+                } else {
+                    $("#register-submit-tip").addClass("ui-state-error");
+                    $("#register-submit-tip span:first").addClass("ui-icon-circle-close");
+                    $("#register-submit-tip span:last").text("注册信息不满足要求");
+                    $("#register-submit-tip").show();
+                }
+            });
+
+            // 输入控件状态初始化
+            var validationStatus = {
+                name: false,
+                mail: false,
+                password: false,
+                repassword: false
+            };
+
+            $("#register-name-tip").hide();
+            $("#register-mail-tip").hide();
+            $("#register-password-tip").hide();
+            $("#register-re-password-tip").hide();
+
+            // 名称验证
+            $("#register-name-input > input").keyup(function () {
+                var registerNameInput = $(this);
+
+                // 还原
+                $("#register-name-tip").hide();
+                $("#register-name-tip").removeClass("ui-state-highlight");
+                $("#register-name-tip").removeClass("ui-state-error");
+                $("#register-name-tip span:first").removeClass("ui-icon-circle-close");
+                $("#register-name-tip span:first").removeClass("ui-icon-circle-check");
+
+                if (registerNameInput.val().length >= 2 && registerNameInput.val().length <= 10) {
+                    if (nameFormatValidation(registerNameInput.val())) {
+                        $.getJSON("/Account/Ajax/Register.cshtml", { name: registerNameInput.val() }).done(function (data) {
+                            if (data.IsOk) {
+                                validationStatus.name = true;
+                                $("#register-name-tip").addClass("ui-state-highlight");
+                                $("#register-name-tip span:first").addClass("ui-icon-circle-check");
+                                $("#register-name-tip span:last").text("这个名字可以使用");
+                                $("#register-name-tip").show();
+                            } else {
+                                validationStatus.name = false;
+                                $("#register-name-tip").addClass("ui-state-error");
+                                $("#register-name-tip span:first").addClass("ui-icon-circle-close");
+                                $("#register-name-tip span:last").text("这个名字已经有别人在用了");
+                                $("#register-name-tip").show();
+                            }
+                        }).error(function () {
+                            $("#register-name-tip").addClass("ui-state-error");
+                            $("#register-name-tip span:first").addClass("ui-icon-circle-close");
+                            $("#register-name-tip span:last").text("服务器通信异常");
+                            $("#register-name-tip").show();
+                        });
+                    } else {
+                        validationStatus.name = false;
+                        $("#register-name-tip").addClass("ui-state-error");
+                        $("#register-name-tip span:first").addClass("ui-icon-circle-close");
+                        $("#register-name-tip span:last").text("名称含有非法字符");
+                        $("#register-name-tip").show();
+                    }
+                } else {
+                    validationStatus.name = false;
+                    $("#register-name-tip").addClass("ui-state-error");
+                    $("#register-name-tip span:first").addClass("ui-icon-circle-close");
+                    $("#register-name-tip span:last").text("名称必须是 2~10 个字符组成");
+                    $("#register-name-tip").show();
+                }
+            });
+
+            // 邮箱验证
+            $("#register-mail-input > input").keyup(function () {
+                var registerMailInput = $(this);
+
+                // 还原
+                $("#register-mail-tip").hide();
+                $("#register-mail-tip").removeClass("ui-state-highlight");
+                $("#register-mail-tip").removeClass("ui-state-error");
+                $("#register-mail-tip span:first").removeClass("ui-icon-circle-close");
+                $("#register-mail-tip span:first").removeClass("ui-icon-circle-check");
+
+                if (mailFormatValidation(registerMailInput.val())) {
+                    $.getJSON("/Account/Ajax/Register.cshtml", { mail: registerMailInput.val() }).done(function (data) {
+                        if (data.IsOk) {
+                            validationStatus.mail = true;
+                            $("#register-mail-tip").addClass("ui-state-highlight");
+                            $("#register-mail-tip span:first").addClass("ui-icon-circle-check");
+                            $("#register-mail-tip span:last").text("这个邮箱可以使用");
+                            $("#register-mail-tip").show();
+                        } else {
+                            validationStatus.mail = false;
+                            $("#register-mail-tip").addClass("ui-state-error");
+                            $("#register-mail-tip span:first").addClass("ui-icon-circle-close");
+                            $("#register-mail-tip span:last").text("这个邮箱已经注册过了");
+                            $("#register-mail-tip").show();
+                        }
+                    }).error(function () {
+                        $("#register-mail-tip").addClass("ui-state-error");
+                        $("#register-mail-tip span:first").addClass("ui-icon-circle-close");
+                        $("#register-mail-tip span:last").text("服务器通信异常");
+                        $("#register-mail-tip").show();
+                    });
+                } else {
+                    validationStatus.mail = false;
+                    $("#register-mail-tip").addClass("ui-state-error");
+                    $("#register-mail-tip span:first").addClass("ui-icon-circle-close");
+                    $("#register-mail-tip span:last").text("邮箱格式不正确");
+                    $("#register-mail-tip").show();
+                }
+            });
+
+            // 密码验证
+            $("#register-password-input > input").keyup(function () {
+                var registerPasswordInput = $(this);
+
+                // 还原
+                $("#register-password-tip").hide();
+                $("#register-password-tip").removeClass("ui-state-highlight");
+                $("#register-password-tip").removeClass("ui-state-error");
+                $("#register-password-tip span:first").removeClass("ui-icon-circle-close");
+                $("#register-password-tip span:first").removeClass("ui-icon-circle-check");
+
+                $("#register-re-password-input > input").clearInputs();
+                if (registerPasswordInput.val().length >= 6 && registerPasswordInput.val().length <= 32) {
+                    switch (passwordFormatValidation(registerPasswordInput.val())) {
+                        case 1:
+                            validationStatus.password = true;
+                            $("#register-password-tip").addClass("ui-state-highlight");
+                            $("#register-password-tip span:first").addClass("ui-icon-circle-check");
+                            $("#register-password-tip span:last").text("密码等级: 低");
+                            $("#register-password-tip").show();
+                            break;
+                        case 2:
+                            validationStatus.password = true;
+                            $("#register-password-tip").addClass("ui-state-highlight");
+                            $("#register-password-tip span:first").addClass("ui-icon-circle-check");
+                            $("#register-password-tip span:last").text("密码等级: 中");
+                            $("#register-password-tip").show();
+                            break;
+                        case 3:
+                            validationStatus.password = true;
+                            $("#register-password-tip").addClass("ui-state-highlight");
+                            $("#register-password-tip span:first").addClass("ui-icon-circle-check");
+                            $("#register-password-tip span:last").text("密码等级: 高");
+                            $("#register-password-tip").show();
+                            break;
+                        default:
+                            validationStatus.password = false;
+                            $("#register-password-tip").addClass("ui-state-error");
+                            $("#register-password-tip span:first").addClass("ui-icon-circle-close");
+                            $("#register-password-tip span:last").text("密码含有非法字符");
+                            $("#register-password-tip").show();
+                            break;
+                    }
+                } else {
+                    validationStatus.password = false;
+                    $("#register-password-tip").addClass("ui-state-error");
+                    $("#register-password-tip span:first").addClass("ui-icon-circle-close");
+                    $("#register-password-tip span:last").text("密码长度必须是 6~32 位");
+                    $("#register-password-tip").show();
+                }
+            });
+
+            // 密码二次验证
+            $("#register-re-password-input > input").keyup(function () {
+                var registerRePasswordInput = $(this);
+
+                // 还原
+                $("#register-re-password-tip").hide();
+                $("#register-re-password-tip").removeClass("ui-state-highlight");
+                $("#register-re-password-tip").removeClass("ui-state-error");
+                $("#register-re-password-tip span:first").removeClass("ui-icon-circle-close");
+                $("#register-re-password-tip span:first").removeClass("ui-icon-circle-check");
+
+                if (validationStatus.password) {
+                    if ($("#register-password-input > input").val() == registerRePasswordInput.val()) {
+                        validationStatus.repassword = true;
+                        $("#register-re-password-tip").addClass("ui-state-highlight");
+                        $("#register-re-password-tip span:first").addClass("ui-icon-circle-check");
+                        $("#register-re-password-tip span:last").text("通过");
+                        $("#register-re-password-tip").show();
+                    } else {
+                        validationStatus.repassword = false;
+                        $("#register-re-password-tip").addClass("ui-state-error");
+                        $("#register-re-password-tip span:first").addClass("ui-icon-circle-close");
+                        $("#register-re-password-tip span:last").text("两次密码输入不一致");
+                        $("#register-re-password-tip").show();
+                    }
+                } else {
+                    validationStatus.repassword = false;
                 }
             });
         });
@@ -217,7 +500,62 @@ else
 else
 {
     <div id="register-dialog" title="注册">
+        <form id="register-form" action="~/Account/Ajax/Register" method="post">
+            <label id="register-name-input">
+                <span>昵称</span>
+                <br />
+                <input name="name" type="text" />
+            </label>
+            <div id="register-name-tip" class="ui-corner-all icon-tip">
+                <span class="ui-icon"></span>
+                <span></span>
+            </div>
+            <br />
+            <br />
+            <label id="register-mail-input">
+                <span>邮箱</span>
+                <br />
+                <input name="mail" type="text" placeholder="example@mail.com" />
+            </label>
+            <div id="register-mail-tip" class="ui-corner-all icon-tip">
+                <span class="ui-icon"></span>
+                <span></span>
+            </div>
+            <br />
+            <br />
+            <label id="register-password-input">
+                <span>创建密码</span>
+                <br />
+                <input name="password" type="password" />
+            </label>
+            <div id="register-password-tip" class="ui-corner-all icon-tip">
+                <span class="ui-icon"></span>
+                <span></span>
+            </div>
+            <br />
+            <br />
+            <label id="register-re-password-input">
+                <span>重新输入密码</span>
+                <br />
+                <input type="password" />
+            </label>
+            <div id="register-re-password-tip" class="ui-corner-all icon-tip">
+                <span class="ui-icon"></span>
+                <span></span>
+            </div>
+        </form>
+        <br />
+        <br />
+        <div>
+            <button id="register-submit-button" style="float: left;">创建账户</button>
+            <div id="register-submit-progressbar"></div>
+            <div id="register-submit-tip" class="ui-corner-all icon-tip" style="float: right;">
+                <span class="ui-icon"></span>
+                <span></span>
+            </div>
+        </div>
     </div>
+    
     <div id="login-dialog" title="登录">
         <div id="login-alert-box" class="ui-widget">
             <div class="ui-state-highlight ui-corner-all">
@@ -244,7 +582,7 @@ else
             <br />
             <label id="login-autologin-checkbox">
                 <span>记住我(请不要在公共电脑勾选此项)</span>
-                <input name="remember" type="checkbox" title="勾选此项下次就不用重复登录了"/>
+                <input name="remember" type="checkbox" title="勾选此项下次就不用重复登录了" />
             </label>
         </form>
     </div>
