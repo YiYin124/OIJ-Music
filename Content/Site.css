@@ -217,36 +217,6 @@ body {
     float: right;
 }
 
-/*µÇÂ¼°´Å¥¾ÓÖÐÀ­Éì*/
-#login-dialog + div {
-    padding: 5px;
-}
-
-    #login-dialog + div > div {
-        width: 100%;
-    }
-
-        #login-dialog + div > div > button {
-            box-sizing: border-box;
-            width: 100%;
-        }
-
-/*µÇÂ¼ÌáÊ¾¿ò*/
-#login-alert-box > div {
-    margin-top: 5px;
-    margin-bottom: 5px;
-    padding: 0px 0.7em;
-}
-
-#login-alert-p {
-    display: inline-block;
-}
-
-    #login-alert-p > span {
-        margin-right: 0.3em;
-        float: left;
-    }
-
 /*×¢²á¶Ô»°¿ò*/
 #register-name-input > input {
     box-sizing: border-box;

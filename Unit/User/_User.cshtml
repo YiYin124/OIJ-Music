@@ -60,7 +60,7 @@
                 close: function () {
                     // 关闭窗口后刷新页面
                     if (IsLoginOut)
-                        window.location.reload();
+                        location.reload();
                 }
             });
 
@@ -77,8 +77,34 @@ else
 {
     <script>
         $(function () {
+            function tipBar(tip, style, context) {
+                if (style == "highlight") {
+                    tip.removeClass("ui-state-error");
+                    tip.children("span:first").removeClass("ui-icon-circle-close");
+
+                    tip.addClass("ui-state-highlight");
+                    tip.children("span:first").addClass("ui-icon-circle-check");
+                    tip.children("span:last").text(context);
+                } else if (style == "error") {
+                    tip.removeClass("ui-state-highlight");
+                    tip.children("span:first").removeClass("ui-icon-circle-check");
+
+                    tip.addClass("ui-state-error");
+                    tip.children("span:first").addClass("ui-icon-circle-close");
+                    tip.children("span:last").text(context);
+                } else {
+                    tip.removeClass("ui-state-error");
+                    tip.children("span:first").removeClass("ui-icon-circle-close");
+                    tip.removeClass("ui-state-highlight");
+                    tip.children("span:first").removeClass("ui-icon-circle-check");
+                }
+
+                return tip;
+            }
+
             // UI
             var IsLogin = false;
+
             $("#login-alert-box").hide();
             $("#register-login-btn").buttonset();
 
@@ -104,73 +130,86 @@ else
                 modal: true,
                 show: {
                     effect: "drop",
-                    //duration: 500
                 },
                 hide: {
                     effect: "drop",
-                    //duration: 500
                 },
                 close: function () {
                     // 关闭窗口后刷新页面
                     if (IsLogin)
-                        window.location.reload();
+                        location.reload();
                 },
-                buttons: {
-                    "登录": function () {
-                        var loginAlertBox = $("#login-alert-box");
-                        var loginAlertText = $("#login-alert-text");
-                        var loginNameInput = $("#login-name-input > input");
-                        var loginPasswordInput = $("#login-password-input > input");
+            });
 
-                        loginAlertBox.hide("clip");
-                        loginAlertText.text("");
+            $("#login-name-tip").hide();
+            $("#login-password-tip").hide();
+            $("#login-submit-tip").hide();
 
-                        if (loginNameInput.val() == "") {
-                            loginAlertText.text("账户名不能为空");
-                            loginAlertBox.show("clip");
-                            return;
-                        }
-
-                        if (loginNameInput.val().length < 2) {
-                            loginAlertText.text("账户名长度不正确");
-                            loginAlertBox.show("clip");
-                            return;
-                        }
-
-                        if (loginPasswordInput.val() == "") {
-                            loginAlertText.text("密码不能为空");
-                            loginAlertBox.show("clip");
-                            return;
-                        }
-
-                        if (loginPasswordInput.val().length < 6) {
-                            loginAlertText.text("密码长度不正确");
-                            loginAlertBox.show("clip");
-                            return;
-                        }
-
-                        // 对密码进行摘要
-                        loginPasswordInput.val(CryptoJS.SHA3(loginPasswordInput.val()));
-
-                        $("#login-form").ajaxSubmit(function (responseText, statusText) {
-                            if (statusText == "success") {
-                                var json = eval("(" + responseText + ")");
-                                if (json.IsOk) {
-                                    loginNameInput.attr("disabled", "disabled");
-                                    loginPasswordInput.attr("disabled", "disabled");
-                                    IsLogin = true;
-                                    $("#login-dialog").dialog("close");
-                                } else {
-                                    loginAlertText.text(json.reason);
-                                    loginAlertBox.show("clip");
-                                }
-                            } else {
-                                loginAlertText.text("与服务器连接丢失请重试");
-                                loginAlertBox.show("clip");
-                            }
-                        });
-                    }
+            $("#login-submit-button").button({
+                icons: {
+                    primary: "ui-icon-key"
                 }
+            }).click(function () {
+                var tipName = $("#login-name-tip");
+                var tipPassword = $("#login-password-tip");
+                var tipSubmit = $("#login-submit-tip");
+
+                var loginNameInput = $("#login-name-input > input");
+                var loginPasswordInput = $("#login-password-input > input");
+
+                if (loginNameInput.val() == "") {
+                    tipBar(tipName, "error", "账户名不能为空").show();
+                    return;
+                } else {
+                    tipName.hide();
+                }
+
+                if (loginNameInput.val().length < 2) {
+                    tipBar(tipName, "error", "账户名长度不正确").show();
+                    return;
+                } else {
+                    tipName.hide();
+                }
+
+                if (loginPasswordInput.val() == "") {
+                    tipBar(tipPassword, "error", "密码不能为空").show();
+                    return;
+                } else {
+                    tipPassword.hide();
+                }
+
+                if (loginPasswordInput.val().length < 6) {
+                    tipBar(tipPassword, "error", "密码长度不正确").show();
+                    return;
+                } else {
+                    tipPassword.hide();
+                }
+
+                // 对密码进行摘要
+                loginPasswordInput.val(CryptoJS.SHA3(loginPasswordInput.val()));
+
+                $("#login-form").ajaxSubmit(function (responseText, statusText) {
+                    if (statusText == "success") {
+                        var json = eval("(" + responseText + ")");
+                        if (json.IsOk) {
+                            loginNameInput.attr("disabled", "disabled");
+                            loginPasswordInput.attr("disabled", "disabled");
+                            IsLogin = true;
+                            tipSubmit.hide();
+                            $("#login-dialog").dialog("close");
+                        } else {
+                            loginNameInput.removeAttr("disabled");
+                            loginPasswordInput.removeAttr("disabled");
+                            loginPasswordInput.clearInputs();
+                            tipBar(tipSubmit, "error", json.reason).show();
+                        }
+                    } else {
+                        loginNameInput.removeAttr("disabled");
+                        loginPasswordInput.removeAttr("disabled");
+                        loginPasswordInput.clearInputs();
+                        tipBar(tipSubmit, "error", "与服务器连接丢失请重试").show();
+                    }
+                });
             });
 
             $("#register-dialog").dialog({
@@ -184,8 +223,7 @@ else
                     effect: "drop",
                 },
                 close: function () {
-                    //if (IsLogin)
-                    //    window.location.reload();
+                    window.location.reload();
                 },
             });
 
@@ -204,13 +242,8 @@ else
             }).click(function () {
 
                 var registerSubmitButton = $(this);
-
-                // 还原
-                $("#register-submit-tip").hide();
-                $("#register-submit-tip").removeClass("ui-state-highlight");
-                $("#register-submit-tip").removeClass("ui-state-error");
-                $("#register-submit-tip span:first").removeClass("ui-icon-circle-close");
-                $("#register-submit-tip span:first").removeClass("ui-icon-circle-check");
+                var tip = $("#register-submit-tip");
+                tip.hide();
 
                 var registerNameInput = $("#register-name-input > input");
                 var registerMailInput = $("#register-mail-input > input");
@@ -224,29 +257,20 @@ else
 
                 if (validationStatus.mail & validationStatus.name & validationStatus.password & validationStatus.repassword) {
                     // 对密码进行一次算法摘要
-                    $("#register-password-input > input").val(CryptoJS.SHA3($("#register-password-input > input").val()));
+                    $("#register-password-input > input").val(CryptoJS.SHA3($("#register-re-password-input > input").val()));
                     $("#register-submit-progressbar").show();
                     $("#register-form").ajaxSubmit(function (responseText, statusText) {
                         $("#register-submit-progressbar").hide();
                         if (statusText == "success") {
                             var json = eval("(" + responseText + ")");
                             if (json.IsOk) {
-                                $("#register-submit-tip").addClass("ui-state-highlight");
-                                $("#register-submit-tip span:first").addClass("ui-icon-circle-check");
-                                $("#register-submit-tip span:last").text("验证邮件发送成功");
-                                $("#register-submit-tip").show();
+                                tipBar(tip, "highlight", "验证邮件发送成功").show();
                             } else {
-                                $("#register-submit-tip").addClass("ui-state-error");
-                                $("#register-submit-tip span:first").addClass("ui-icon-circle-close");
-                                $("#register-submit-tip span:last").text("请求失败 原因:" + json.reason);
-                                $("#register-submit-tip").show();
+                                tipBar(tip, "error", json.reason).show();
                             }
                         }
                         else {
-                            $("#register-submit-tip").addClass("ui-state-error");
-                            $("#register-submit-tip span:first").addClass("ui-icon-circle-close");
-                            $("#register-submit-tip span:last").text("与服务器连接丢失请重试");
-                            $("#register-submit-tip").show();
+                            tipBar(tip, "error", "与服务器通信失败").show();
                         }
                         registerSubmitButton.button("option", "label", "重新发送");
                         registerSubmitButton.button("option", "disabled", false);
@@ -259,10 +283,7 @@ else
 
                     registerSubmitButton.button("option", "disabled", true);
                 } else {
-                    $("#register-submit-tip").addClass("ui-state-error");
-                    $("#register-submit-tip span:first").addClass("ui-icon-circle-close");
-                    $("#register-submit-tip span:last").text("注册信息不满足要求");
-                    $("#register-submit-tip").show();
+                    tipBar(tip, "error", "注册信息不满足要求").show();
                 }
             });
 
@@ -282,169 +303,99 @@ else
             // 名称验证
             $("#register-name-input > input").keyup(function () {
                 var registerNameInput = $(this);
-
-                // 还原
-                $("#register-name-tip").hide();
-                $("#register-name-tip").removeClass("ui-state-highlight");
-                $("#register-name-tip").removeClass("ui-state-error");
-                $("#register-name-tip span:first").removeClass("ui-icon-circle-close");
-                $("#register-name-tip span:first").removeClass("ui-icon-circle-check");
+                var tip = $("#register-name-tip");
 
                 if (registerNameInput.val().length >= 2 && registerNameInput.val().length <= 10) {
                     if (nameFormatValidation(registerNameInput.val())) {
                         $.getJSON("/Account/Ajax/Register.cshtml", { name: registerNameInput.val() }).done(function (data) {
                             if (data.IsOk) {
                                 validationStatus.name = true;
-                                $("#register-name-tip").addClass("ui-state-highlight");
-                                $("#register-name-tip span:first").addClass("ui-icon-circle-check");
-                                $("#register-name-tip span:last").text("这个名字可以使用");
-                                $("#register-name-tip").show();
+                                tipBar(tip, "highlight", "这个名字可以使用").show();
                             } else {
                                 validationStatus.name = false;
-                                $("#register-name-tip").addClass("ui-state-error");
-                                $("#register-name-tip span:first").addClass("ui-icon-circle-close");
-                                $("#register-name-tip span:last").text("这个名字已经有别人在用了");
-                                $("#register-name-tip").show();
+                                tipBar(tip, "error", "这个名字已经有别人在用了").show();
                             }
                         }).error(function () {
-                            $("#register-name-tip").addClass("ui-state-error");
-                            $("#register-name-tip span:first").addClass("ui-icon-circle-close");
-                            $("#register-name-tip span:last").text("服务器通信异常");
-                            $("#register-name-tip").show();
+                            tipBar(tip, "error", "服务器通信异常").show();
+                            validationStatus.name = false;
                         });
                     } else {
                         validationStatus.name = false;
-                        $("#register-name-tip").addClass("ui-state-error");
-                        $("#register-name-tip span:first").addClass("ui-icon-circle-close");
-                        $("#register-name-tip span:last").text("名称含有非法字符");
-                        $("#register-name-tip").show();
+                        tipBar(tip, "error", "名称含有非法字符").show();
                     }
                 } else {
                     validationStatus.name = false;
-                    $("#register-name-tip").addClass("ui-state-error");
-                    $("#register-name-tip span:first").addClass("ui-icon-circle-close");
-                    $("#register-name-tip span:last").text("名称必须是 2~10 个字符组成");
-                    $("#register-name-tip").show();
+                    tipBar(tip, "error", "名称必须是 2~10 个字符组成").show();
                 }
             });
 
             // 邮箱验证
             $("#register-mail-input > input").keyup(function () {
                 var registerMailInput = $(this);
-
-                // 还原
-                $("#register-mail-tip").hide();
-                $("#register-mail-tip").removeClass("ui-state-highlight");
-                $("#register-mail-tip").removeClass("ui-state-error");
-                $("#register-mail-tip span:first").removeClass("ui-icon-circle-close");
-                $("#register-mail-tip span:first").removeClass("ui-icon-circle-check");
+                var tip = $("#register-mail-tip");
 
                 if (mailFormatValidation(registerMailInput.val())) {
                     $.getJSON("/Account/Ajax/Register.cshtml", { mail: registerMailInput.val() }).done(function (data) {
                         if (data.IsOk) {
                             validationStatus.mail = true;
-                            $("#register-mail-tip").addClass("ui-state-highlight");
-                            $("#register-mail-tip span:first").addClass("ui-icon-circle-check");
-                            $("#register-mail-tip span:last").text("这个邮箱可以使用");
-                            $("#register-mail-tip").show();
+                            tipBar(tip, "highlight", "这个邮箱可以使用").show();
                         } else {
                             validationStatus.mail = false;
-                            $("#register-mail-tip").addClass("ui-state-error");
-                            $("#register-mail-tip span:first").addClass("ui-icon-circle-close");
-                            $("#register-mail-tip span:last").text("这个邮箱已经注册过了");
-                            $("#register-mail-tip").show();
+                            tipBar(tip, "error", "这个邮箱已经注册过了").show();
                         }
                     }).error(function () {
-                        $("#register-mail-tip").addClass("ui-state-error");
-                        $("#register-mail-tip span:first").addClass("ui-icon-circle-close");
-                        $("#register-mail-tip span:last").text("服务器通信异常");
-                        $("#register-mail-tip").show();
+                        validationStatus.mail = false;
+                        tipBar(tip, "error", "服务器通信异常").show();
                     });
                 } else {
                     validationStatus.mail = false;
-                    $("#register-mail-tip").addClass("ui-state-error");
-                    $("#register-mail-tip span:first").addClass("ui-icon-circle-close");
-                    $("#register-mail-tip span:last").text("邮箱格式不正确");
-                    $("#register-mail-tip").show();
+                    tipBar(tip, "error", "邮箱格式不正确").show();
                 }
             });
 
             // 密码验证
             $("#register-password-input > input").keyup(function () {
                 var registerPasswordInput = $(this);
-
-                // 还原
-                $("#register-password-tip").hide();
-                $("#register-password-tip").removeClass("ui-state-highlight");
-                $("#register-password-tip").removeClass("ui-state-error");
-                $("#register-password-tip span:first").removeClass("ui-icon-circle-close");
-                $("#register-password-tip span:first").removeClass("ui-icon-circle-check");
+                var tip = $("#register-password-tip");
 
                 $("#register-re-password-input > input").clearInputs();
                 if (registerPasswordInput.val().length >= 6 && registerPasswordInput.val().length <= 32) {
                     switch (passwordFormatValidation(registerPasswordInput.val())) {
                         case 1:
                             validationStatus.password = true;
-                            $("#register-password-tip").addClass("ui-state-highlight");
-                            $("#register-password-tip span:first").addClass("ui-icon-circle-check");
-                            $("#register-password-tip span:last").text("密码等级: 低");
-                            $("#register-password-tip").show();
+                            tipBar(tip, "highlight", "密码等级: 低").show();
                             break;
                         case 2:
                             validationStatus.password = true;
-                            $("#register-password-tip").addClass("ui-state-highlight");
-                            $("#register-password-tip span:first").addClass("ui-icon-circle-check");
-                            $("#register-password-tip span:last").text("密码等级: 中");
-                            $("#register-password-tip").show();
+                            tipBar(tip, "highlight", "密码等级: 中").show();
                             break;
                         case 3:
                             validationStatus.password = true;
-                            $("#register-password-tip").addClass("ui-state-highlight");
-                            $("#register-password-tip span:first").addClass("ui-icon-circle-check");
-                            $("#register-password-tip span:last").text("密码等级: 高");
-                            $("#register-password-tip").show();
+                            tipBar(tip, "highlight", "密码等级: 高").show();
                             break;
                         default:
                             validationStatus.password = false;
-                            $("#register-password-tip").addClass("ui-state-error");
-                            $("#register-password-tip span:first").addClass("ui-icon-circle-close");
-                            $("#register-password-tip span:last").text("密码含有非法字符");
-                            $("#register-password-tip").show();
+                            tipBar(tip, "error", "密码含有非法字符").show();
                             break;
                     }
                 } else {
                     validationStatus.password = false;
-                    $("#register-password-tip").addClass("ui-state-error");
-                    $("#register-password-tip span:first").addClass("ui-icon-circle-close");
-                    $("#register-password-tip span:last").text("密码长度必须是 6~32 位");
-                    $("#register-password-tip").show();
+                    tipBar(tip, "error", "密码长度必须是 6~32 位").show();
                 }
             });
 
             // 密码二次验证
             $("#register-re-password-input > input").keyup(function () {
                 var registerRePasswordInput = $(this);
-
-                // 还原
-                $("#register-re-password-tip").hide();
-                $("#register-re-password-tip").removeClass("ui-state-highlight");
-                $("#register-re-password-tip").removeClass("ui-state-error");
-                $("#register-re-password-tip span:first").removeClass("ui-icon-circle-close");
-                $("#register-re-password-tip span:first").removeClass("ui-icon-circle-check");
+                var tip = $("#register-re-password-tip");
 
                 if (validationStatus.password) {
                     if ($("#register-password-input > input").val() == registerRePasswordInput.val()) {
                         validationStatus.repassword = true;
-                        $("#register-re-password-tip").addClass("ui-state-highlight");
-                        $("#register-re-password-tip span:first").addClass("ui-icon-circle-check");
-                        $("#register-re-password-tip span:last").text("通过");
-                        $("#register-re-password-tip").show();
+                        tipBar(tip, "highlight", "通过").show();
                     } else {
                         validationStatus.repassword = false;
-                        $("#register-re-password-tip").addClass("ui-state-error");
-                        $("#register-re-password-tip span:first").addClass("ui-icon-circle-close");
-                        $("#register-re-password-tip span:last").text("两次密码输入不一致");
-                        $("#register-re-password-tip").show();
+                        tipBar(tip, "error", "两次密码输入不一致").show();
                     }
                 } else {
                     validationStatus.repassword = false;
@@ -557,20 +508,16 @@ else
     </div>
     
     <div id="login-dialog" title="登录">
-        <div id="login-alert-box" class="ui-widget">
-            <div class="ui-state-highlight ui-corner-all">
-                <p id="login-alert-p">
-                    <span class="ui-icon ui-icon-info"></span>
-                    <span id="login-alert-text"></span>
-                </p>
-            </div>
-        </div>
         <form id="login-form" method="post" action="~/Account/Ajax/Login">
             <label id="login-name-input">
                 <span>账户名</span>
                 <br />
                 <input name="account_name" type="text" title="请输入你的登录邮箱或昵称" />
             </label>
+            <div id="login-name-tip" class="ui-corner-all icon-tip">
+                <span class="ui-icon"></span>
+                <span></span>
+            </div>
             <br />
             <br />
             <label id="login-password-input">
@@ -578,6 +525,10 @@ else
                 <br />
                 <input name="password" type="password" title="请输入你的登录密码" />
             </label>
+            <div id="login-password-tip" class="ui-corner-all icon-tip">
+                <span class="ui-icon"></span>
+                <span></span>
+            </div>
             <br />
             <br />
             <label id="login-autologin-checkbox">
@@ -585,5 +536,14 @@ else
                 <input name="remember" type="checkbox" title="勾选此项下次就不用重复登录了" />
             </label>
         </form>
+        <br />
+        <br />
+        <div>
+            <button id="login-submit-button" style="float: left;">登录</button>
+            <div id="login-submit-tip" class="ui-corner-all icon-tip" style="float: right;">
+                <span class="ui-icon"></span>
+                <span></span>
+            </div>
+        </div>
     </div>
 }

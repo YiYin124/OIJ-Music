@@ -1,0 +1,56 @@
+﻿@{
+    Layout = "~/_SiteLayout.cshtml";
+    Page.Title = "提示";
+}
+
+@section Scripts {
+    <script src="~/Scripts/oij-music-helper.js"></script>
+}
+
+<script>
+    $(function () {
+        var redirect = "/";
+        var promptContext = "没事别瞎访问";
+
+        var args = getArgs();
+
+        var countDownSecound = 5;
+
+        if (args["prompt"] != null && args["redirect"] != null) {
+            redirect = args["redirect"];
+            promptContext = args["prompt"];
+        }
+
+        $("#normal-prompt-dialog").dialog({
+            resizable: false,
+            modal: true,
+            show: {
+                effect: "drop",
+            },
+            hide: {
+                effect: "drop",
+            },
+            close: function () {
+                location.href = redirect;
+            },
+        });
+
+        $("#normal-prompt-context").text(promptContext);
+        $("#normal-prompt-dialog").dialog("option", "title", countDownSecound + "秒后跳转");
+
+        var hTimer = setInterval(function () {
+            countDownSecound--;
+            $("#normal-prompt-dialog").dialog("option", "title", countDownSecound + "秒后跳转");
+            if (countDownSecound == 0) {
+                $("#normal-prompt-dialog").dialog("close");
+                clearInterval(hTimer);
+            } else if (countDownSecound == -2) {
+                location.href = redirect;
+            }
+        }, 1000);
+    });
+</script>
+
+<div id="normal-prompt-dialog">
+    <p id="normal-prompt-context" style="text-align: center"></p>
+</div>

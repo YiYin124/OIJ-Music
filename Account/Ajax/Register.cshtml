@@ -6,7 +6,9 @@
 @{
     if (Page.IsLogin)
     {
-        Response.Redirect("~");
+        var prompt = "你已经登录了，稍后将自动跳转到主页!";
+        var redirect = "/";
+        Response.Redirect("~/NormalPrompt?prompt=" + Server.UrlEncode(prompt) + "&redirect=" + Server.UrlEncode(redirect));
         return;
     }
     
@@ -52,14 +54,15 @@
                 }
                 else
                 {
-                    Response.Write("{ \"IsOk\": false, \"reason\": \"这可能是一个 Hacker 行为!\" }");
+                    Response.Write("{ \"IsOk\": false, \"reason\": \"你可能在搞破坏\" }");
                 }
             }
         }
         else
         {
-            Response.Write("{ \"IsOk\": false, \"reason\": \"这可能是一个 Hacker 行为!\" }");
+            Response.Write("{ \"IsOk\": false, \"reason\": \"你可能在搞破坏\" }");
         }
+        return;
     }
     else if (!Request.QueryString["key"].IsEmpty())
     {
@@ -82,7 +85,6 @@
                         db.Execute("INSERT INTO Account (Name, Email, Password) VALUES(@0, @1, @2)", name, mail, password);
                         // 注册成功
                         App.MailValidationData[guid] = null; // 坐等自动回收
-                        Response.Write("<p>注册成功!</p>");
 
                         var row = db.QuerySingle("SELECT Id,Password FROM Account WHERE Email = @0", mail);
                         
@@ -95,15 +97,19 @@
                             HttpCookie loginCookie = new HttpCookie("1", loginId);
                             loginCookie.HttpOnly = true;
                             Response.Cookies.Add(loginCookie);
-                        
-                            Response.Redirect("~");
+
+                            var prompt = "注册成功，稍后将自动跳转主页";
+                            var redirect = "/";
+                            Response.Redirect("~/NormalPrompt?prompt=" + Server.UrlEncode(prompt) + "&redirect=" + Server.UrlEncode(redirect));
                         }
                     }
                     else
                     {
                         // 无效的验证请求
                         App.MailValidationData[guid] = null; // 坐等自动回收
-                        Response.Write("<p>无效的验证请求</p>");
+                        var prompt = "无效的验证请求，稍后将自动跳转主页";
+                        var redirect = "/";
+                        Response.Redirect("~/NormalPrompt?prompt=" + Server.UrlEncode(prompt) + "&redirect=" + Server.UrlEncode(redirect));
                     }
                 }
             }
@@ -111,14 +117,19 @@
             {
                 // 无效的验证请求
                 App.MailValidationData[guid] = null; // 坐等自动回收
-                Response.Write("<p>验证请求已过期</p>");
+                var prompt = "验证请求已过期请重新注册，稍后将自动跳转主页";
+                var redirect = "/";
+                Response.Redirect("~/NormalPrompt?prompt=" + Server.UrlEncode(prompt) + "&redirect=" + Server.UrlEncode(redirect));
             }
         }
         else
         {
             // 无效的验证请求
-            Response.Write("<p>无效的验证请求</p>");
+            var prompt = "无效的验证请求，稍后将自动跳转主页";
+            var redirect = "/";
+            Response.Redirect("~/NormalPrompt?prompt=" + Server.UrlEncode(prompt) + "&redirect=" + Server.UrlEncode(redirect));
         }
+        return;
     }
     else if (!Request.QueryString["name"].IsEmpty())
     {
@@ -133,6 +144,7 @@
                 Response.Write("{ \"IsOk\": false }");
             }
         }
+        return;
     }
     else if (!Request.QueryString["mail"].IsEmpty())
     {
@@ -147,5 +159,12 @@
                 Response.Write("{ \"IsOk\": false }");
             }
         }
+        return;
+    }
+    
+    {
+        var prompt = "没事别瞎访问，稍后将自动跳转主页";
+        var redirect = "/";
+        Response.Redirect("~/NormalPrompt?prompt=" + Server.UrlEncode(prompt) + "&redirect=" + Server.UrlEncode(redirect));
     }
 }

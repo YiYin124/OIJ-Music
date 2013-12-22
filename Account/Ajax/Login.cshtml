@@ -5,7 +5,9 @@
 @{
     if (Page.IsLogin)
     {
-        Response.Redirect("~");
+        var prompt = "你已经登录过了，稍后将自动跳转到主页!";
+        var redirect = "/";
+        Response.Redirect("~/NormalPrompt?prompt=" + Server.UrlEncode(prompt) + "&redirect=" + Server.UrlEncode(redirect));
         return;
     }
     
